@@ -11,7 +11,6 @@ import dateutil.parser
 import babel
 from flask import Flask, jsonify, render_template, request, Response, flash, redirect, url_for, abort
 from flask_moment import Moment
-from flask_sqlalchemy import SQLAlchemy
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
@@ -26,7 +25,8 @@ from models import *
 
 moment = Moment(app)
 app.config.from_object('config')
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:kaosi@127.0.0.1:5432/fyyur'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 #----------------------------------------------------------------------------#
 # Filters.
 #----------------------------------------------------------------------------#
@@ -852,7 +852,6 @@ def create_artist_submission():
       error = True
       db.session.rollback()
     finally:
-      #db.session.close()
       if error:
         # TODO: on unsuccessful db insert, flash an error instead.
         # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')
@@ -861,18 +860,17 @@ def create_artist_submission():
       else:
         # on successful db insert, flash success
         flash('Artist: "' + request.form['name'] + '" was successfully listed!') 
-        # Add genres to ArtistGenres table
-        artist = Artist.query.filter_by(name=name, city=city).first()
-        for genre in genres:
-          try:
-            new_genre = ArtistGenres(artist_id=artist.id, genres=genre)
-            db.session.add(new_genre)
-            db.session.commit()
-          except:
-            db.session.rollback()
-            abort(500)
-        db.session.close()
-    return render_template('pages/home.html')
+      # Add genres to ArtistGenres table 
+      artist = Artist.query.filter_by(name=name, city=city).first()
+      for genre in genres:
+        try:
+          new_genre = ArtistGenres(artist_id=artist.id, genres=genre)
+          db.session.add(new_genre)
+          db.session.commit()
+        except:
+          db.session.rollback()
+          abort(500)
+      db.session.close()
   # Without availability---------------
   if available_start == "" and available_stop == "":
     try:
@@ -901,19 +899,19 @@ def create_artist_submission():
         abort(500)
       else:
         # on successful db insert, flash success
-        flash('Artist: "' + request.form['name'] + '" was successfully listed!') 
-        # Add genres to ArtistGenres table
-        artist = Artist.query.filter_by(name=name, city=city).first()
-        for genre in genres:
-          try:
-            new_genre = ArtistGenres(artist_id=artist.id, genres=genre)
-            db.session.add(new_genre)
-            db.session.commit()
-          except:
-            db.session.rollback()
-            abort(500)
-        db.session.close()
-    return render_template('pages/home.html')
+        flash('Artist: "' + request.form['name'] + '" was successfully listed!')
+      # Add genres to ArtistGenres table 
+      artist = Artist.query.filter_by(name=name, city=city).first()
+      for genre in genres:
+        try:
+          new_genre = ArtistGenres(artist_id=artist.id, genres=genre)
+          db.session.add(new_genre)
+          db.session.commit()
+        except:
+          db.session.rollback()
+          abort(500)
+      db.session.close()
+  return render_template('pages/home.html')
 
 # Delete Artist
 #---------------------------------------------------------------
@@ -1087,10 +1085,11 @@ def create_show_submission():
   start_time = request.form.get('start_time')
   # Check availability------------
   check = Artist.query.get(artist)
-  check_start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
-  if check_start_time <= check.available_start or check_start_time >= check.available_stop:
-    flash('Sorry, ' + check.name + ' is not availble at that time. Check artist availablity and try again.')
-    return redirect(url_for('create_shows'))
+  if check.available_start:
+    check_start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+    if check_start_time <= check.available_start or check_start_time >= check.available_stop:
+      flash('Sorry, ' + check.name + ' is not availble at that time. Check artist availablity and try again.')
+      return redirect(url_for('create_shows'))
   try:
     new_show = Shows(
     artist_id=artist,
