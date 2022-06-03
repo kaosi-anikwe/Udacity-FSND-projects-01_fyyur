@@ -1,14 +1,20 @@
 from datetime import datetime
+from email.policy import default
+from operator import imod
 from flask_wtf import Form
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
 from wtforms.validators import DataRequired, AnyOf, URL
 
 class ShowForm(Form):
-    artist_id = StringField(
-        'artist_id'
+    artist_id = StringField('artist_id')
+    artist_name = SelectField(
+        'artist_name',
+        validators=[DataRequired()]
     )
-    venue_id = StringField(
-        'venue_id'
+    venue_id = StringField('venue_id')
+    venue_name = SelectField(
+        'venue_name',
+        validators=[DataRequired()]
     )
     start_time = DateTimeField(
         'start_time',
@@ -236,4 +242,10 @@ class ArtistForm(Form):
     seeking_description = StringField(
             'seeking_description'
      )
+    available_start = DateTimeField(
+        'available_start', default=datetime.today()
+     )
+    available_stop = DateTimeField(
+        'available_stop', default=datetime.today()
+    )
 

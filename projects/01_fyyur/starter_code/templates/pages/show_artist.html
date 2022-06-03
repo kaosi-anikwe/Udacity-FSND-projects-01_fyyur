@@ -26,6 +26,12 @@
 		<p>
 			<i class="fab fa-facebook-f"></i> {% if artist.facebook_link %}<a href="{{ artist.facebook_link }}" target="_blank">{{ artist.facebook_link }}</a>{% else %}No Facebook Link{% endif %}
         </p>
+		{% if artist.available_start %}
+		<h5 class="monospace">Available from: {{ artist.available_start|datetime('full') }}</h5>
+		<h5 class="monospace">Till: {{ artist.available_stop|datetime('full') }}</h6>
+		{% else %}
+		<h5 class="monospace">Availability not set</h5>
+		{% endif %}
 		{% if artist.seeking_venue %}
 		<div class="seeking">
 			<p class="lead">Currently seeking performance venues</p>
@@ -70,9 +76,12 @@
 		</div>
 		{% endfor %}
 	</div>
+	<div>
+		<a href="/artists/{{ artist.id }}/delete"><button class="btn btn-primary btn-lg">Delete Artist</button></a>
+	</div>
 </section>
 
-<a href="/artists/{{ artist.id }}/edit"><button class="btn btn-primary btn-lg">Edit</button></a>
+<a href="/artists/{{ artist.id }}/edit"><button class="btn btn-primary btn-lg">Edit Artist</button></a>
 
 {% endblock %}
 
