@@ -1,28 +1,42 @@
-from flask import Flask, jsonify, render_template, request, Response, flash, redirect, url_for, abort
+from flask import (
+    Flask,
+    jsonify,
+    render_template,
+    request,
+    Response,
+    flash,
+    redirect,
+    url_for,
+    abort,
+)
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_moment import Moment
 
 
 app = Flask(__name__)
+app.config.from_object("config")
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:kaosi@127.0.0.1:5432/fyyur'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+moment = Moment(app)
 
-#----------------------------------------------------------------------------#
+# ----------------------------------------------------------------------------#
 # Models.
-#----------------------------------------------------------------------------#
-# TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+# ----------------------------------------------------------------------------#
+
 
 class Shows(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
-    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), nullable=False)
+    venue_id = db.Column(db.Integer, db.ForeignKey("venue.id"), nullable=False)
+    artist_id = db.Column(
+        db.Integer, db.ForeignKey("artist.id"), nullable=False
+    )
     start_time = db.Column(db.DateTime, nullable=False)
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
-class Venue(db.Model):
-    __tablename__ = 'Venue'
+
+
+class Venues(db.Model):
+    __tablename__ = "venue"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(), nullable=False)
     city = db.Column(db.String(120))
@@ -34,19 +48,31 @@ class Venue(db.Model):
     facebook_link = db.Column(db.String(120))
     seeking_talent = db.Column(db.Boolean, nullable=False)
     seeking_description = db.Column(db.String(200))
-    genres = db.relationship('VenueGenres', cascade="all, delete-orphan", single_parent=True, backref=db.backref('venue'))
-    shows = db.relationship('Shows', cascade="all, delete-orphan", backref=db.backref('venue'), lazy=True)
+    genres = db.relationship(
+        "VenueGenres",
+        cascade="all, delete-orphan",
+        single_parent=True,
+        backref=db.backref("venue"),
+    )
+    shows = db.relationship(
+        "Shows",
+        cascade="all, delete-orphan",
+        backref=db.backref("venue"),
+        lazy=True,
+    )
+
 
 class VenueGenres(db.Model):
-    __tablename__ = 'venue_genres'
+    __tablename__ = "venue_genres"
     id = db.Column(db.Integer, primary_key=True)
-    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
+    venue_id = db.Column(db.Integer, db.ForeignKey("venue.id"), nullable=False)
     genres = db.Column(db.String(), nullable=False)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
-class Artist(db.Model):
-    __tablename__ = 'Artist'
+
+class Artists(db.Model):
+    __tablename__ = "artist"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(), nullable=False)
     city = db.Column(db.String(120))
@@ -59,12 +85,24 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String(120))
     available_start = db.Column(db.DateTime)
     available_stop = db.Column(db.DateTime)
-    genres = db.relationship('ArtistGenres', cascade="all, delete-orphan", single_parent=True, backref=db.backref('artist'))
-    shows = db.relationship('Shows', cascade="all, delete-orphan", backref=db.backref('artist'), lazy=True)
+    genres = db.relationship(
+        "ArtistGenres",
+        cascade="all, delete-orphan",
+        single_parent=True,
+        backref=db.backref("artist"),
+    )
+    shows = db.relationship(
+        "Shows",
+        cascade="all, delete-orphan",
+        backref=db.backref("artist"),
+        lazy=True,
+    )
+
 
 class ArtistGenres(db.Model):
-    __tablename__ = 'artist_genres'
+    __tablename__ = "artist_genres"
     id = db.Column(db.Integer, primary_key=True)
-    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), nullable=False)
+    artist_id = db.Column(
+        db.Integer, db.ForeignKey("artist.id"), nullable=False
+    )
     genres = db.Column(db.String(), nullable=False)
-    

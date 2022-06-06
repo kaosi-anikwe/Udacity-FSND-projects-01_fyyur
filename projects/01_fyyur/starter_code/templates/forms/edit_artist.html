@@ -3,6 +3,7 @@
 {% block content %}
   <div class="form-wrapper">
     <form class="form" method="post" action="/artists/{{artist.id}}/edit">
+      {{ form.csrf_token }}
       <h3 class="form-heading">Edit artist <em>{{ artist.name }}</em></h3>
       <div class="form-group">
         <label for="name">Name</label>
@@ -21,26 +22,41 @@
       </div>
       <div class="form-group">
           <label for="phone">Phone</label>
-          {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true) }}
+          {{ form.phone(class_ = 'form-control', placeholder='+234xxxxxxxxxx', autofocus = true) }}
+          {% for error in form.phone.errors %}
+          <small style="font-weight: bold;">{{ error }}</small>
+          {% endfor %}
         </div>
       <div class="form-group">
         <label for="genres">Genres</label>
         <small>Ctrl+Click to select multiple</small>
         {{ form.genres(class_ = 'form-control', placeholder='Genres, separated by commas', autofocus = true) }}
+        {% for error in form.genres.errors %}
+        <small style="font-weight: bold; color: red;">{{ error }}</small>
+        {% endfor %}
       </div>
       <div class="form-group">
           <label for="facebook_link">Facebook Link</label>
           {{ form.facebook_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+          {% for error in form.facebook_link.errors %}
+          <small style="font-weight: bold; color: red;">{{ error }}</small>
+          {% endfor %}
         </div>
       
       <div class="form-group">
           <label for="image_link">Image Link</label>
           {{ form.image_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+          {% for error in form.image_link.errors %}
+          <small style="font-weight: bold; color: red;">{{ error }}</small>
+          {% endfor %}
       </div>
 
       <div class="form-group">
-            <label for="website_link">Website Link</label>
-            {{ form.website_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+            <label for="website">Website Link</label>
+            {{ form.website(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+            {% for error in form.website.errors %}
+            <small style="font-weight: bold; color: red;">{{ error }}</small>
+            {% endfor %}
       </div>
 
       <div class="form-group">
@@ -55,10 +71,16 @@
       <div class="form-group">
         <label for="available_start">Available From...</label>
         {{ form.available_start(class_ = 'form-control', placeholder='YYYY-MM-DD HH:MM', autofocus = true) }}
+        {% for error in form.available_start.errors %}
+        <small>{{ error }}</small>
+        {% endfor %}
       </div>
       <div class="form-group">
         <label for="available_stop">...To</label>
         {{ form.available_stop(class_ = 'form-control', placeholder='YYYY-MM-DD HH:MM', autofocus = true) }}
+        {% for error in form.available_stop.errors %}
+        <small>{{ error }}</small>
+        {% endfor %}
       </div>
       <input type="submit" value="Edit Artist" class="btn btn-primary btn-lg btn-block">
     </form>
