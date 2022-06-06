@@ -1,0 +1,40 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Fyyur | Artists{% endblock %}
+{% block content %}
+<style>
+	.allign {
+        -webkit-appearance: none;
+    	border: none;
+        outline: none;
+        color: red;
+        float: right;
+        cursor: pointer;
+        font-size: 20px;
+	}
+</style>
+<div>
+	<form class="search" method="post" action="/artists/search/city_state">
+		<input class="form-control"
+		  type="search"
+		  name="search_term"
+		  placeholder="Find an artist by city and state"
+		  aria-label="Search">
+	  </form>
+</div>
+<ul class="items">
+	{% for artist in artists %}
+	<li>
+		<a href="/artists/{{ artist.id }}" style="display: inline-block;">
+			<i class="fas fa-users" style="display: inline-block;"></i>
+			<h5 style="display: inline-block;" >{{ artist.name }}</h5>
+		</a>
+		<a href="/artists/delete/{{ artist.id }}" class="allign" onclick="return confirm('Do you want to permanently delete {{ artist.name }}?');">
+			<button type="button"class"="allign" style="color: red;" >&Cross;</button>
+		</a>
+	</li>
+	{% endfor %}
+</ul>
+<div>
+	<a href="/artists/create"><button class="btn btn-primary btn-lg">Post an artist</button></a>
+</div>
+{% endblock %}
